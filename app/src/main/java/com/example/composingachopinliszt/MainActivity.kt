@@ -27,7 +27,19 @@ import com.example.composingachopinliszt.ui.theme.ComposingAChopinLisztTheme
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var shoppingList = listOf("Apple", "Milk", "Butter", "Grapes", "Onions","Bread", "Cereal", "Celery", "Beans", "Meat", "Ice cream")
+        var shoppingList = listOf(
+            "Apple",
+            "Milk",
+            "Butter",
+            "Grapes",
+            "Onions",
+            "Bread",
+            "Cereal",
+            "Celery",
+            "Beans",
+            "Meat",
+            "Ice cream"
+        )
         setContent {
             MyApp {
                 MyScreenContent(shoppingList)
@@ -48,6 +60,7 @@ fun MyApp(content: @Composable () -> Unit) {
 @Composable
 fun MyScreenContent(myItems: List<String>) {
     ChopinLiszt(myItems)
+//    ChopinLisztWithConstraints(myItems)
 }
 
 @Composable
@@ -55,7 +68,8 @@ fun ChopinLiszt(names: List<String>) {
     LazyColumn() {
         items(items = names) { name ->
             var isSelected by remember { mutableStateOf(false) }
-            val backgroundColor = if (isSelected) colorResource(R.color.baby_blue) else Color.Transparent
+            val backgroundColor =
+                if (isSelected) colorResource(R.color.baby_blue) else Color.Transparent
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -86,7 +100,7 @@ fun TextItem(name: String) {
 fun ImageItem() {
     Image(
         vectorResource(id = R.drawable.ic_android_black_24dp),
-                modifier = Modifier.fillMaxWidth(0.1f)
+        modifier = Modifier.fillMaxWidth(0.1f)
     )
 }
 
@@ -99,6 +113,62 @@ fun CheckBoxItem() {
         onCheckedChange = { checkedState.value = it }
     )
 }
+
+@Composable
+fun ChopinLisztWithConstraints(names: List<String>) {
+    LazyColumn() {
+        items(items = names) { name ->
+            var isSelected by remember { mutableStateOf(false) }
+            val backgroundColor =
+                if (isSelected) colorResource(R.color.baby_blue) else Color.Transparent
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = backgroundColor)
+                    .clickable(onClick = { isSelected = !isSelected })
+            ) {
+                val (icon, text, checkbox) = createRefs()
+                Image(
+                    vectorResource(id = R.drawable.ic_android_black_24dp),
+                    modifier = Modifier
+                        .padding(10.dp, 0.dp, 0.dp, 0.dp)
+                        .constrainAs(icon) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                        }
+                )
+
+                Text(
+                    text = name,
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .constrainAs(text) {
+                            top.linkTo(icon.top)
+                            bottom.linkTo(icon.bottom)
+                            start.linkTo(icon.end)
+                        }
+                )
+
+                val checkedState = remember { mutableStateOf(true) }
+                Checkbox(
+                    modifier = Modifier
+                        .padding(0.dp, 0.dp, 10.dp, 0.dp)
+                        .constrainAs(checkbox) {
+                            top.linkTo(icon.top)
+                            bottom.linkTo(icon.bottom)
+                            end.linkTo(parent.end)
+                        },
+                    checked = checkedState.value,
+                    onCheckedChange = { checkedState.value = it }
+                )
+
+            }
+            Divider(color = colorResource(R.color.teal_200))
+        }
+    }
+}
+
 
 @Preview("MyScreen preview")
 @Composable
